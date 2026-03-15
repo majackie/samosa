@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { getGitHubToken, getGitHubSession } from '../auth/github';
-import { getRenderApiKey, validateAndSaveRenderApiKey } from '../auth/render';
+import { getRenderApiKey, validateAndSaveRenderApiKey, clearRenderApiKey } from '../auth/render';
 import { PROJECT_TYPES } from '../deploy/projectTypes';
 
 export interface DeployStep {
@@ -14,8 +14,6 @@ export class SamosaSidebarProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = 'samosa.panel';
   private _view?: vscode.WebviewView;
   private _resolver?: Resolver;
-  private _githubDisconnected = false;
-
   constructor(
     private readonly _context: vscode.ExtensionContext,
     private readonly _onDeploy: () => Promise<void>
@@ -35,22 +33,17 @@ export class SamosaSidebarProvider implements vscode.WebviewViewProvider {
         case 'ready':
           await this.sendIdle();
           break;
-        case 'connect-github': {
-          const wasRevoked = this._githubDisconnected;
-          this._githubDisconnected = false;
-          await getGitHubSession(wasRevoked ? 'force' : 'create');
+        case 'connect-github':
+          await getGitHubSession('create');
           await this.sendIdle();
           break;
-        }
         case 'reconnect-github':
-          this._githubDisconnected = false;
           await getGitHubSession('force');
           await this.sendIdle();
           break;
-        case 'revoke-github':
-          this._githubDisconnected = true;
+        case 'remove-render-key':
+          await clearRenderApiKey(this._context.secrets);
           await this.sendIdle();
-          await vscode.commands.executeCommand('workbench.action.openAccountsMenu');
           break;
         case 'render-key-submit': {
           const key = (msg.key as string) ?? '';
@@ -81,8 +74,7 @@ export class SamosaSidebarProvider implements vscode.WebviewViewProvider {
   // ── Public API ───────────────────────────────────────────────────────────
 
   async sendIdle(): Promise<void> {
-    const rawToken = await getGitHubToken();
-    const githubToken = this._githubDisconnected ? undefined : rawToken;
+    const githubToken = await getGitHubToken();
     const renderKey = await getRenderApiKey(this._context.secrets);
     let session: vscode.AuthenticationSession | undefined;
     if (githubToken) {
@@ -176,13 +168,13 @@ body{padding:16px 12px;font-family:var(--vscode-font-family);font-size:var(--vsc
     <span class="row-name">GitHub</span>
     <span class="row-detail" id="gh-detail"></span>
     <button class="link-btn" id="gh-btn"></button>
-    <button class="link-btn" id="gh-revoke-btn" style="display:none;color:var(--vscode-errorForeground)">Revoke</button>
   </div>
   <div class="row">
     <span class="dot" id="rd-dot"></span>
     <span class="row-name">Render</span>
     <span class="row-detail" id="rd-detail"></span>
     <button class="link-btn" id="rd-btn"></button>
+    <button class="link-btn" id="rd-remove-btn" style="display:none;color:var(--vscode-errorForeground)">Remove</button>
   </div>
   <hr class="divider"/>
   <button id="deploy-btn" class="primary">
@@ -197,6 +189,11 @@ body{padding:16px 12px;font-family:var(--vscode-font-family);font-size:var(--vsc
   <p style="font-size:11px;color:var(--vscode-descriptionForeground);margin-bottom:10px">
     Find your API key at Render → Account Settings → API Keys.
     <br/><button class="link-btn" onclick="post('open-url',{url:'https://dashboard.render.com/u/settings#api-keys'})">Open Render settings ↗</button>
+  </p>
+  <p style="font-size:11px;color:var(--vscode-descriptionForeground);margin-bottom:10px">
+    Also connect Render to your GitHub (one-time):
+    <br/><button class="link-btn" onclick="post('open-url',{url:'https://dashboard.render.com/select-repo?type=web'})">Open Render → select repo ↗</button>
+    <br/>then click <strong>Configure account</strong>, select your GitHub username, select <strong>All repositories</strong>, and click <strong>Save</strong>.
   </p>
   <div class="password-row">
     <input id="render-key-input" class="text-input" type="password" placeholder="rnd_…" spellcheck="false" autocomplete="off"/>
@@ -283,8 +280,8 @@ function makeTypeItem(label, desc, onclick) {
 
 // ── Idle ──
 document.getElementById('rd-btn').onclick = () => show('screen-render-key');
+document.getElementById('rd-remove-btn').onclick = () => post('remove-render-key');
 document.getElementById('deploy-btn').onclick = () => post('deploy');
-document.getElementById('gh-revoke-btn').onclick = () => post('revoke-github');
 
 // ── Render key ──
 function togglePw() {
@@ -326,19 +323,17 @@ window.addEventListener('message', ({ data }) => {
         document.getElementById('gh-dot').className = 'dot ' + (ghOn ? 'on' : 'off');
         document.getElementById('gh-detail').textContent = ghOn ? (s.githubUser ? '@' + s.githubUser : 'Connected') : 'Not connected';
         const ghBtn = document.getElementById('gh-btn');
-        const ghRevokeBtn = document.getElementById('gh-revoke-btn');
         if (ghOn) {
           ghBtn.textContent = 'Reconnect';
           ghBtn.onclick = () => post('reconnect-github');
-          ghRevokeBtn.style.display = '';
         } else {
           ghBtn.textContent = 'Connect';
           ghBtn.onclick = () => post('connect-github');
-          ghRevokeBtn.style.display = 'none';
         }
         document.getElementById('rd-dot').className = 'dot ' + (rdOn ? 'on' : 'off');
         document.getElementById('rd-detail').textContent = rdOn ? 'API key saved' : 'Not connected';
         document.getElementById('rd-btn').textContent = rdOn ? 'Update key' : 'Connect';
+        document.getElementById('rd-remove-btn').style.display = rdOn ? '' : 'none';
         document.getElementById('deploy-btn').disabled = !(ghOn && rdOn);
         document.getElementById('idle-hint').textContent = (ghOn && rdOn) ? '' : 'Connect both accounts to deploy.';
         document.getElementById('render-key-input').value = '';

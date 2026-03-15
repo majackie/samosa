@@ -31,7 +31,11 @@ Install Samosa in any of the following ways:
 2. Click the samosa icon in the activity bar
 3. Click **Connect** next to GitHub and sign in via VS Code's native auth
 4. Click **Connect** next to Render and paste your API key (Dashboard → Account Settings → API Keys)
-5. Connect Render to GitHub once at [dashboard.render.com/select-repo](https://dashboard.render.com/select-repo?type=web)
+5. Connect Render to GitHub once:
+   - Go to [dashboard.render.com/select-repo](https://dashboard.render.com/select-repo?type=web)
+   - Click **Configure account**
+   - Enter your GitHub username and select **All repositories**
+   - Click **Save**
 
 ## Deploy
 

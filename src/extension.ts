@@ -145,8 +145,8 @@ async function runDeploy(context: vscode.ExtensionContext, sidebar: SamosaSideba
 
     if (err instanceof RenderGitHubAccessError) {
       sidebar.sendError(
-        "Render isn't linked to your GitHub account. On the page that opens, click 'Connect GitHub' and complete the OAuth flow, then deploy again.",
-        { label: 'Connect GitHub on Render', url: 'https://dashboard.render.com/select-repo?type=web' }
+        "Render has lost access to your GitHub. On the page that opens, select your GitHub account, choose All repositories, and click Save — then deploy again.",
+        { label: 'Reconnect GitHub on Render', url: 'https://dashboard.render.com/select-repo?type=web' }
       );
     } else {
       sidebar.sendError(err instanceof Error ? err.message : String(err));
