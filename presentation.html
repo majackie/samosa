@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Samosa: Hackathon Presentation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --accent: #f97316;
+      --accent2: #fb923c;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --blue: #58a6ff;
+      --purple: #bc8cff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Slides ── */
+    .deck {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 80px;
+      text-align: center;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ── Typography ── */
+    .label {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+
+    .tagline {
+      font-size: clamp(1rem, 2vw, 1.4rem);
+      color: var(--muted);
+      margin-top: 16px;
+      max-width: 560px;
+    }
+
+    .accent { color: var(--accent); }
+    .green  { color: var(--green); }
+    .blue   { color: var(--blue); }
+    .purple { color: var(--purple); }
+
+    /* ── Cards / lists ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 32px;
+      text-align: left;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 20px;
+    }
+
+    .card-icon { font-size: 2rem; margin-bottom: 12px; }
+    .card h3   { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .card p    { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── Steps ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      max-width: 680px;
+      margin-top: 32px;
+      text-align: left;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-body h3  { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    .step-body p   { font-size: 0.825rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Code block ── */
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 28px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.9rem;
+      text-align: left;
+      max-width: 680px;
+      width: 100%;
+      margin-top: 24px;
+      line-height: 1.8;
+    }
+
+    .code-block .comment { color: var(--muted); }
+    .code-block .key     { color: var(--blue); }
+    .code-block .val     { color: var(--green); }
+
+    /* ── Tech pills ── */
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 32px;
+      max-width: 700px;
+    }
+
+    .pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* ── Big stat ── */
+    .stats {
+      display: flex;
+      gap: 48px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .stat { text-align: center; }
+    .stat-num  { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; line-height: 1; }
+    .stat-desc { font-size: 0.875rem; color: var(--muted); margin-top: 6px; }
+
+    /* ── Quote highlight ── */
+    .quote {
+      font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+      font-style: italic;
+      color: var(--muted);
+      max-width: 640px;
+      line-height: 1.7;
+      margin-top: 16px;
+      border-left: 4px solid var(--accent);
+      padding-left: 24px;
+      text-align: left;
+    }
+
+    /* ── Orange gradient title ── */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent), #facc15);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Slide line decoration ── */
+    .rule {
+      width: 60px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin: 20px auto 0;
+    }
+
+    /* ── Nav bar ── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .nav-brand { font-size: 0.85rem; font-weight: 700; color: var(--accent); }
+
+    .nav-controls { display: flex; align-items: center; gap: 12px; }
+
+    .nav button {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .nav button:hover { background: var(--border); }
+    .nav button:disabled { opacity: 0.3; cursor: default; }
+
+    .nav-counter { font-size: 0.8rem; color: var(--muted); min-width: 60px; text-align: center; }
+
+    .progress {
+      width: 160px;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    /* Slide-specific accents */
+    #slide-1 { background: radial-gradient(ellipse at 60% 40%, #1a0a0014 0%, transparent 70%), var(--bg); }
+    #slide-7 { background: radial-gradient(ellipse at 40% 60%, #f9731610 0%, transparent 70%), var(--bg); }
+  </style>
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- 1. Title -->
+  <section class="slide active" id="slide-1">
+    <div class="label">Developer Tools Hackathon</div>
+    <h1><span class="gradient-text">Samosa</span></h1>
+    <p class="tagline">Deploy any project to Render.com, directly from VS Code, in a single click.</p>
+    <div class="rule"></div>
+  </section>
+
+  <!-- 2. Problem -->
+  <section class="slide" id="slide-2">
+    <div class="label">The Problem</div>
+    <h2>Deploying a new project is<br/><span class="accent">tedious and repetitive</span></h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🔀</div>
+        <h3>Create a GitHub repo</h3>
+        <p>Initialize, add remote, push. All before you have even started on the service.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚙️</div>
+        <h3>Configure Render manually</h3>
+        <p>Log into the dashboard, pick a service type, wire up environment, set build commands.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔁</div>
+        <h3>Repeat for every project</h3>
+        <p>Every new side project, prototype or demo goes through the same 10-minute slog.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Solution -->
+  <section class="slide" id="slide-3">
+    <div class="label">The Solution</div>
+    <h2>One button.<br/><span class="green">Your project is live.</span></h2>
+    <p class="tagline" style="margin-top:16px;">
+      Samosa is a VS Code extension that handles GitHub repo creation, render.yaml generation
+      and Render deployment, all without leaving your editor.
+    </p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num accent">1</div>
+        <div class="stat-desc">click to deploy</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num green">0</div>
+        <div class="stat-desc">browser tabs needed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num blue">5</div>
+        <div class="stat-desc">project types supported</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. How it works -->
+  <section class="slide" id="slide-4">
+    <div class="label">How It Works</div>
+    <h2>Four steps, <span class="accent">fully automated</span></h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Connect your accounts</h3>
+          <p>GitHub via VS Code's built-in OAuth. No passwords stored. Render via API key in SecretStorage.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Auto-generate <code>render.yaml</code></h3>
+          <p>Samosa detects your stack and writes the deployment config automatically. Supports static HTML/CSS/JS, Node.js, Python, Go and React.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Push to GitHub</h3>
+          <p>Creates a new repo (or uses existing), commits and pushes via git and the GitHub API.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Trigger Render deployment</h3>
+          <p>Calls the Render API to create and deploy the service. Your app is live.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. render.yaml -->
+  <section class="slide" id="slide-5">
+    <div class="label">Zero Config</div>
+    <h2>We write the config <span class="accent">for you</span></h2>
+    <p class="tagline"><code>render.yaml</code> is a config file that tells Render how to build and run your project. Samosa generates it for you and commits it automatically.</p>
+    <div class="code-block">
+      <span class="comment"># render.yaml: auto-generated by Samosa</span><br/>
+      <span class="key">services</span>:<br/>
+      &nbsp;&nbsp;- <span class="key">type</span>: <span class="val">web</span><br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">name</span>: <span class="val">my-project</span><br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">env</span>: <span class="val">node</span><br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">buildCommand</span>: <span class="val">npm install</span><br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">startCommand</span>: <span class="val">node index.js</span><br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">plan</span>: <span class="val">free</span>
+    </div>
+  </section>
+
+  <!-- 6. Tech Stack -->
+  <section class="slide" id="slide-6">
+    <div class="label">Tech Stack</div>
+    <h2>Built <span class="blue">on top of VS Code</span></h2>
+    <p class="tagline">No external server. All auth is local. Packaged as a standard <code>.vsix</code> extension.</p>
+    <div class="pills">
+      <div class="pill">🟦 TypeScript</div>
+      <div class="pill">🧩 VS Code API</div>
+      <div class="pill">🐙 Octokit / GitHub API</div>
+      <div class="pill">🌐 Render API</div>
+      <div class="pill">🔐 SecretStorage (API key)</div>
+      <div class="pill">🔑 vscode.authentication (OAuth)</div>
+      <div class="pill">⚡ esbuild</div>
+      <div class="pill">🔧 child_process (git)</div>
+    </div>
+  </section>
+
+  <!-- 7. Close / CTA -->
+  <section class="slide" id="slide-7">
+    <div class="label">Developer Tools Hackathon</div>
+    <h1><span class="gradient-text">Ship faster.<br/>Stay in flow.</span></h1>
+    <p class="tagline">
+      Samosa keeps developers in their editor, the place they already live,
+      and eliminates the deployment ceremony that breaks focus.
+    </p>
+    <div class="rule"></div>
+    <p style="margin-top: 32px; font-size: 0.9rem; color: var(--muted);">
+      github.com/majackie/samosa
+    </p>
+  </section>
+
+</div>
+
+<!-- Nav bar -->
+<nav class="nav">
+  <span class="nav-brand">Samosa</span>
+  <div class="nav-controls">
+    <button id="btn-prev" onclick="go(-1)" disabled>← Prev</button>
+    <span class="nav-counter" id="counter">1 / 7</span>
+    <button id="btn-next" onclick="go(1)">Next →</button>
+  </div>
+  <div class="progress">
+    <div class="progress-fill" id="progress-fill" style="width: calc(100%/7)"></div>
+  </div>
+</nav>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total  = slides.length;
+  let cur = 0;
+
+  function go(dir) {
+    const next = Math.max(0, Math.min(total - 1, cur + dir));
+    if (next === cur) return;
+    slides[cur].classList.remove('active');
+    cur = next;
+    slides[cur].classList.add('active');
+    document.getElementById('counter').textContent = `${cur + 1} / ${total}`;
+    document.getElementById('btn-prev').disabled = cur === 0;
+    document.getElementById('btn-next').disabled = cur === total - 1;
+    document.getElementById('progress-fill').style.width = `${((cur + 1) / total) * 100}%`;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown'  || e.key === ' ') go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                       go(-1);
+  });
+</script>
+</body>
+</html>
