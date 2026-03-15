@@ -2,7 +2,7 @@
   "name": "samosa",
   "displayName": "Samosa",
   "description": "Deploy projects to Render with a single click",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "majackie",
   "license": "MIT",
   "repository": {
