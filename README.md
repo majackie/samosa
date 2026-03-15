@@ -18,9 +18,16 @@ Deploy any project to [Render](https://render.com) with a single click from VS C
 - A [Render](https://render.com) account with an API key
 - Render connected to GitHub (one-time setup via the Render dashboard)
 
+## Installation
+
+Install Samosa in any of the following ways:
+
+- **VS Code Marketplace** — search for *Samosa* in the Extensions view (`Ctrl+Shift+X` / `Cmd+Shift+X`) and click **Install**, or go [here](https://marketplace.visualstudio.com/items?itemName=majackie.samosa)
+- **Release download** — grab the latest `.vsix` from the [Releases page](https://github.com/majackie/samosa/releases/tag/v1.0.0) and run **Extensions: Install from VSIX…**
+
 ## Setup
 
-1. Install the extension via **Extensions: Install from VSIX…**
+1. Install the extension using one of the methods above
 2. Click the samosa icon in the activity bar
 3. Click **Connect** next to GitHub and sign in via VS Code's native auth
 4. Click **Connect** next to Render and paste your API key (Dashboard → Account Settings → API Keys)
