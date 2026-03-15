@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.vscode-test/
+*.js.map
+.DS_Store
+out/
+.vscode/
+.claude/
+.vscode-test.mjs
+.vscodeignore
