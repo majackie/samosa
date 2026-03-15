@@ -1,0 +1,69 @@
+{
+  "name": "samosa",
+  "displayName": "Samosa",
+  "description": "Deploy projects to Render with a single click",
+  "version": "1.0.0",
+  "publisher": "majackie",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/majackie/samosa.git"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "keywords": ["render", "deploy", "github", "hosting"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "samosa",
+          "title": "Samosa",
+          "icon": "media/samosa.svg"
+        }
+      ]
+    },
+    "views": {
+      "samosa": [
+        {
+          "type": "webview",
+          "id": "samosa.panel",
+          "name": "Deploy to Render"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "samosa.deploy",
+        "title": "Deploy to Render",
+        "category": "Samosa"
+      },
+      {
+        "command": "samosa.logout",
+        "title": "Disconnect Render Account",
+        "category": "Samosa"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "rm -f *.vsix && npm run build && vsce package",
+    "pretest": "tsc -p tsconfig.json",
+    "test": "vscode-test"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-cli": "^0.0.6",
+    "@vscode/test-electron": "^2.3.8",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0"
+  }
+}
